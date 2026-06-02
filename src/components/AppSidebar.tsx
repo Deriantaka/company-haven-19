@@ -16,13 +16,8 @@ import {
 
 const items = [
   { title: "Company List", url: "/", icon: LayoutDashboard },
-  { title: "Fault History", url: "/fault-history", icon: FileText },
-  { title: "Admin", url: "/admin", icon: Shield },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "All Sensors", url: "/all-sensors", icon: Activity },
-  { title: "Lubricants", url: "/lubricants", icon: Wrench },
-  { title: "Tools", url: "/tools", icon: Settings },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
