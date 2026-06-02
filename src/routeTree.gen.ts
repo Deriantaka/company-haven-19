@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SectionsSectionIdRouteImport } from './routes/sections.$sectionId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
 import { Route as FactoriesFactoryIdRouteImport } from './routes/factories.$factoryId'
@@ -36,6 +37,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SectionsSectionIdRoute = SectionsSectionIdRouteImport.update({
+  id: '/sections/$sectionId',
+  path: '/sections/$sectionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LinesLineIdRoute = LinesLineIdRouteImport.update({
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/factories/$factoryId'
     | '/groups/$groupId'
     | '/lines/$lineId'
+    | '/sections/$sectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/factories/$factoryId'
     | '/groups/$groupId'
     | '/lines/$lineId'
+    | '/sections/$sectionId'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/factories/$factoryId'
     | '/groups/$groupId'
     | '/lines/$lineId'
+    | '/sections/$sectionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   FactoriesFactoryIdRoute: typeof FactoriesFactoryIdRoute
   GroupsGroupIdRoute: typeof GroupsGroupIdRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
+  SectionsSectionIdRoute: typeof SectionsSectionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sections/$sectionId': {
+      id: '/sections/$sectionId'
+      path: '/sections/$sectionId'
+      fullPath: '/sections/$sectionId'
+      preLoaderRoute: typeof SectionsSectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lines/$lineId': {
@@ -204,7 +224,18 @@ const rootRouteChildren: RootRouteChildren = {
   FactoriesFactoryIdRoute: FactoriesFactoryIdRoute,
   GroupsGroupIdRoute: GroupsGroupIdRoute,
   LinesLineIdRoute: LinesLineIdRoute,
+  SectionsSectionIdRoute: SectionsSectionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
