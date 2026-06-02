@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FactoriesFactoryIdRouteImport } from './routes/factories.$factoryId'
 import { Route as CompaniesCompanyIdRouteImport } from './routes/companies.$companyId'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FactoriesFactoryIdRoute = FactoriesFactoryIdRouteImport.update({
+  id: '/factories/$factoryId',
+  path: '/factories/$factoryId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompaniesCompanyIdRoute = CompaniesCompanyIdRouteImport.update({
   id: '/companies/$companyId',
   path: '/companies/$companyId',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,8 +80,15 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/companies/$companyId'
+    | '/factories/$factoryId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/login' | '/settings' | '/companies/$companyId'
+  to:
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
+    | '/factories/$factoryId'
   id:
     | '__root__'
     | '/'
@@ -80,6 +96,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/settings'
     | '/companies/$companyId'
+    | '/factories/$factoryId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +105,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
   CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
+  FactoriesFactoryIdRoute: typeof FactoriesFactoryIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -120,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/factories/$factoryId': {
+      id: '/factories/$factoryId'
+      path: '/factories/$factoryId'
+      fullPath: '/factories/$factoryId'
+      preLoaderRoute: typeof FactoriesFactoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/companies/$companyId': {
       id: '/companies/$companyId'
       path: '/companies/$companyId'
@@ -136,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
   CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
+  FactoriesFactoryIdRoute: FactoriesFactoryIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
