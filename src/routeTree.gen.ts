@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CompaniesCompanyIdRouteImport } from './routes/companies.$companyId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -34,18 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompaniesCompanyIdRoute = CompaniesCompanyIdRouteImport.update({
+  id: '/companies/$companyId',
+  path: '/companies/$companyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,25 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/login' | '/settings'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/login' | '/settings'
-  id: '__root__' | '/' | '/analytics' | '/login' | '/settings'
+  to: '/' | '/analytics' | '/login' | '/settings' | '/companies/$companyId'
+  id:
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +87,7 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/companies/$companyId': {
+      id: '/companies/$companyId'
+      path: '/companies/$companyId'
+      fullPath: '/companies/$companyId'
+      preLoaderRoute: typeof CompaniesCompanyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,7 +135,18 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
