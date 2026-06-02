@@ -1,5 +1,6 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { BarChart3, Settings, LayoutDashboard } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { BarChart3, Settings, LayoutDashboard, LogOut, Activity, Wrench, Users, Shield, FileText } from "lucide-react";
+import { signOut } from "@/lib/auth";
 import {
   Sidebar,
   SidebarContent,
@@ -7,30 +8,37 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarFooter,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Company List", url: "/", icon: LayoutDashboard },
+  { title: "Fault History", url: "/fault-history", icon: FileText },
+  { title: "Admin", url: "/admin", icon: Shield },
+  { title: "Users", url: "/users", icon: Users },
+  { title: "All Sensors", url: "/all-sensors", icon: Activity },
+  { title: "Lubricants", url: "/lubricants", icon: Wrench },
+  { title: "Tools", url: "/tools", icon: Settings },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const navigate = useNavigate();
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] text-primary-foreground font-bold shadow-[var(--shadow-card)]">
-            C
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)] font-bold text-[oklch(0.3_0.1_80)] shadow-[var(--shadow-card)]">
+            <Activity className="h-5 w-5" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold">Corpa</span>
-            <span className="text-xs text-muted-foreground">Company Manager</span>
+            <span className="text-sm font-bold tracking-wide">VIBSENSE</span>
+            <span className="text-[10px] text-muted-foreground">Industrial Monitoring</span>
           </div>
         </div>
       </SidebarHeader>
@@ -41,7 +49,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={path === item.url} tooltip={item.title}>
+                  <SidebarMenuButton asChild isActive={item.url === "/" ? path === "/" : path.startsWith(item.url)} tooltip={item.title}>
                     <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
@@ -53,6 +61,22 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Logout"
+              onClick={() => {
+                signOut();
+                navigate({ to: "/login" });
+              }}
+            >
+              <LogOut />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
