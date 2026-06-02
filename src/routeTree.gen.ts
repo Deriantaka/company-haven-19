@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SensorsSensorIdRouteImport } from './routes/sensors.$sensorId'
+import { Route as SectionsSectionIdRouteImport } from './routes/sections.$sectionId'
+import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
+import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
+import { Route as FactoriesFactoryIdRouteImport } from './routes/factories.$factoryId'
+import { Route as CompaniesCompanyIdRouteImport } from './routes/companies.$companyId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalyticsRoute = AnalyticsRouteImport.update({
@@ -28,35 +40,124 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SensorsSensorIdRoute = SensorsSensorIdRouteImport.update({
+  id: '/sensors/$sensorId',
+  path: '/sensors/$sensorId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SectionsSectionIdRoute = SectionsSectionIdRouteImport.update({
+  id: '/sections/$sectionId',
+  path: '/sections/$sectionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinesLineIdRoute = LinesLineIdRouteImport.update({
+  id: '/lines/$lineId',
+  path: '/lines/$lineId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
+  id: '/groups/$groupId',
+  path: '/groups/$groupId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FactoriesFactoryIdRoute = FactoriesFactoryIdRouteImport.update({
+  id: '/factories/$factoryId',
+  path: '/factories/$factoryId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompaniesCompanyIdRoute = CompaniesCompanyIdRouteImport.update({
+  id: '/companies/$companyId',
+  path: '/companies/$companyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
+  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/companies/$companyId': typeof CompaniesCompanyIdRoute
+  '/factories/$factoryId': typeof FactoriesFactoryIdRoute
+  '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
+  '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/settings'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
+    | '/factories/$factoryId'
+    | '/groups/$groupId'
+    | '/lines/$lineId'
+    | '/sections/$sectionId'
+    | '/sensors/$sensorId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/settings'
-  id: '__root__' | '/' | '/analytics' | '/settings'
+  to:
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
+    | '/factories/$factoryId'
+    | '/groups/$groupId'
+    | '/lines/$lineId'
+    | '/sections/$sectionId'
+    | '/sensors/$sensorId'
+  id:
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/login'
+    | '/settings'
+    | '/companies/$companyId'
+    | '/factories/$factoryId'
+    | '/groups/$groupId'
+    | '/lines/$lineId'
+    | '/sections/$sectionId'
+    | '/sensors/$sensorId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
+  LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
+  FactoriesFactoryIdRoute: typeof FactoriesFactoryIdRoute
+  GroupsGroupIdRoute: typeof GroupsGroupIdRoute
+  LinesLineIdRoute: typeof LinesLineIdRoute
+  SectionsSectionIdRoute: typeof SectionsSectionIdRoute
+  SensorsSensorIdRoute: typeof SensorsSensorIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analytics': {
@@ -82,13 +190,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sensors/$sensorId': {
+      id: '/sensors/$sensorId'
+      path: '/sensors/$sensorId'
+      fullPath: '/sensors/$sensorId'
+      preLoaderRoute: typeof SensorsSensorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sections/$sectionId': {
+      id: '/sections/$sectionId'
+      path: '/sections/$sectionId'
+      fullPath: '/sections/$sectionId'
+      preLoaderRoute: typeof SectionsSectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lines/$lineId': {
+      id: '/lines/$lineId'
+      path: '/lines/$lineId'
+      fullPath: '/lines/$lineId'
+      preLoaderRoute: typeof LinesLineIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/groups/$groupId': {
+      id: '/groups/$groupId'
+      path: '/groups/$groupId'
+      fullPath: '/groups/$groupId'
+      preLoaderRoute: typeof GroupsGroupIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/factories/$factoryId': {
+      id: '/factories/$factoryId'
+      path: '/factories/$factoryId'
+      fullPath: '/factories/$factoryId'
+      preLoaderRoute: typeof FactoriesFactoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/companies/$companyId': {
+      id: '/companies/$companyId'
+      path: '/companies/$companyId'
+      fullPath: '/companies/$companyId'
+      preLoaderRoute: typeof CompaniesCompanyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
+  LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
+  FactoriesFactoryIdRoute: FactoriesFactoryIdRoute,
+  GroupsGroupIdRoute: GroupsGroupIdRoute,
+  LinesLineIdRoute: LinesLineIdRoute,
+  SectionsSectionIdRoute: SectionsSectionIdRoute,
+  SensorsSensorIdRoute: SensorsSensorIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
