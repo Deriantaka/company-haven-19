@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SensorsSensorIdRouteImport } from './routes/sensors.$sensorId'
 import { Route as SectionsSectionIdRouteImport } from './routes/sections.$sectionId'
 import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
@@ -37,6 +38,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SensorsSensorIdRoute = SensorsSensorIdRouteImport.update({
+  id: '/sensors/$sensorId',
+  path: '/sensors/$sensorId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SectionsSectionIdRoute = SectionsSectionIdRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/groups/$groupId': typeof GroupsGroupIdRoute
   '/lines/$lineId': typeof LinesLineIdRoute
   '/sections/$sectionId': typeof SectionsSectionIdRoute
+  '/sensors/$sensorId': typeof SensorsSensorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/lines/$lineId'
     | '/sections/$sectionId'
+    | '/sensors/$sensorId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/lines/$lineId'
     | '/sections/$sectionId'
+    | '/sensors/$sensorId'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/groups/$groupId'
     | '/lines/$lineId'
     | '/sections/$sectionId'
+    | '/sensors/$sensorId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   GroupsGroupIdRoute: typeof GroupsGroupIdRoute
   LinesLineIdRoute: typeof LinesLineIdRoute
   SectionsSectionIdRoute: typeof SectionsSectionIdRoute
+  SensorsSensorIdRoute: typeof SensorsSensorIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sensors/$sensorId': {
+      id: '/sensors/$sensorId'
+      path: '/sensors/$sensorId'
+      fullPath: '/sensors/$sensorId'
+      preLoaderRoute: typeof SensorsSensorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sections/$sectionId': {
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroupsGroupIdRoute: GroupsGroupIdRoute,
   LinesLineIdRoute: LinesLineIdRoute,
   SectionsSectionIdRoute: SectionsSectionIdRoute,
+  SensorsSensorIdRoute: SensorsSensorIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
