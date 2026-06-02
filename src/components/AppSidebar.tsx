@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { BarChart3, Settings, LayoutDashboard, LogOut, Activity, Wrench, Users, Shield, FileText } from "lucide-react";
+import { BarChart3, Settings, LayoutDashboard, LogOut, Activity } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import {
   Sidebar,
