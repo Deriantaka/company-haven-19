@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LinesLineIdRouteImport } from './routes/lines.$lineId'
 import { Route as GroupsGroupIdRouteImport } from './routes/groups.$groupId'
 import { Route as FactoriesFactoryIdRouteImport } from './routes/factories.$factoryId'
 import { Route as CompaniesCompanyIdRouteImport } from './routes/companies.$companyId'
@@ -35,6 +36,11 @@ const AnalyticsRoute = AnalyticsRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinesLineIdRoute = LinesLineIdRouteImport.update({
+  id: '/lines/$lineId',
+  path: '/lines/$lineId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GroupsGroupIdRoute = GroupsGroupIdRouteImport.update({
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
   '/groups/$groupId': typeof GroupsGroupIdRoute
+  '/lines/$lineId': typeof LinesLineIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/companies/$companyId'
     | '/factories/$factoryId'
     | '/groups/$groupId'
+    | '/lines/$lineId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/companies/$companyId'
     | '/factories/$factoryId'
     | '/groups/$groupId'
+    | '/lines/$lineId'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/companies/$companyId'
     | '/factories/$factoryId'
     | '/groups/$groupId'
+    | '/lines/$lineId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
   FactoriesFactoryIdRoute: typeof FactoriesFactoryIdRoute
   GroupsGroupIdRoute: typeof GroupsGroupIdRoute
+  LinesLineIdRoute: typeof LinesLineIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -149,6 +162,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lines/$lineId': {
+      id: '/lines/$lineId'
+      path: '/lines/$lineId'
+      fullPath: '/lines/$lineId'
+      preLoaderRoute: typeof LinesLineIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/groups/$groupId': {
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
   FactoriesFactoryIdRoute: FactoriesFactoryIdRoute,
   GroupsGroupIdRoute: GroupsGroupIdRoute,
+  LinesLineIdRoute: LinesLineIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
