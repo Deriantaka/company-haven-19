@@ -4,7 +4,7 @@ import { AppShell } from "@/components/industrial/AppShell";
 import { ResourceCard } from "@/components/industrial/ResourceCard";
 import { AddDialog } from "@/components/industrial/AddDialog";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Pencil, Download } from "lucide-react";
+import { ImagePlus, Pencil, Download, Trash2 } from "lucide-react";
 import { useStore, findById } from "@/lib/store";
 
 export const Route = createFileRoute("/lines/$lineId")({
@@ -54,9 +54,19 @@ function Page() {
           className="hidden"
           onChange={(e) => e.target.files?.[0] && handleMap(e.target.files[0])}
         />
-        <div className="mt-5 flex min-h-[260px] items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-[oklch(0.98_0.005_250)]">
+        <div className="relative mt-5 flex min-h-[260px] items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-[oklch(0.98_0.005_250)]">
           {line.map ? (
-            <img src={line.map} alt={`${line.name} map`} className="max-h-[420px] w-full object-contain" />
+            <>
+              <img src={line.map} alt={`${line.name} map`} className="max-h-[420px] w-full object-contain" />
+              <Button
+                variant="destructive"
+                size="sm"
+                className="absolute right-3 top-3 rounded-full shadow"
+                onClick={() => updateItem("lines", line.id, { map: "" })}
+              >
+                <Trash2 className="mr-1 h-3.5 w-3.5" /> Remove Image
+              </Button>
+            </>
           ) : (
             <button
               type="button"
