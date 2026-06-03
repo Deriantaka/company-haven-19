@@ -5,6 +5,8 @@ import {
 } from "recharts";
 import { AppShell } from "@/components/industrial/AppShell";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
 import { makeTrend, makeSpectrum, makeHistory } from "@/lib/sensor-data";
 
@@ -32,6 +34,9 @@ function Page() {
     title: "AI Fault Detection",
     detail: "Imbalance, Misalignment",
   });
+  const [axes, setAxes] = useState({ vertical: true, horizontal: true, axial: true });
+  const toggleAxis = (k: "vertical" | "horizontal" | "axial") =>
+    setAxes((a) => ({ ...a, [k]: !a[k] }));
 
   return (
     <AppShell
@@ -106,8 +111,31 @@ function Page() {
       </div>
 
       <section className="mb-6 rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-        <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Spectrum Chart for Gear Box Wire Drive 1</h2>
-        <p className="text-xs text-muted-foreground">17 Nov 2025 09:00</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Spectrum Chart for Gear Box Wire Drive 1</h2>
+            <p className="text-xs text-muted-foreground">17 Nov 2025 09:00</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            {([
+              { key: "vertical", label: "Vertical", color: "oklch(0.55 0.18 30)" },
+              { key: "horizontal", label: "Horizontal", color: "oklch(0.6 0.18 240)" },
+              { key: "axial", label: "Axial", color: "oklch(0.5 0.2 320)" },
+            ] as const).map((a) => (
+              <div key={a.key} className="flex items-center gap-2">
+                <Checkbox
+                  id={`axis-${a.key}`}
+                  checked={axes[a.key]}
+                  onCheckedChange={() => toggleAxis(a.key)}
+                />
+                <Label htmlFor={`axis-${a.key}`} className="flex items-center gap-1.5 text-sm font-medium cursor-pointer">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: a.color }} />
+                  {a.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="mt-4">
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={spectrum}>
@@ -115,9 +143,15 @@ function Page() {
               <XAxis dataKey="freq" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-              <Line type="monotone" dataKey="vertical" stroke="oklch(0.55 0.18 30)" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="horizontal" stroke="oklch(0.6 0.18 240)" strokeWidth={1.5} dot={false} />
-              <Line type="monotone" dataKey="axial" stroke="oklch(0.5 0.2 320)" strokeWidth={1.5} dot={false} />
+              {axes.vertical && (
+                <Line type="monotone" dataKey="vertical" stroke="oklch(0.55 0.18 30)" strokeWidth={1.5} dot={false} />
+              )}
+              {axes.horizontal && (
+                <Line type="monotone" dataKey="horizontal" stroke="oklch(0.6 0.18 240)" strokeWidth={1.5} dot={false} />
+              )}
+              {axes.axial && (
+                <Line type="monotone" dataKey="axial" stroke="oklch(0.5 0.2 320)" strokeWidth={1.5} dot={false} />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>
