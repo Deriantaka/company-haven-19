@@ -4,9 +4,19 @@ import { AppShell } from "@/components/industrial/AppShell";
 import { TrendChart } from "@/components/industrial/TrendChart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ChevronRight, FileText, Settings } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Search, ChevronRight, FileText, Settings, Plus, Trash2 } from "lucide-react";
 import { useStore, findById } from "@/lib/store";
-import { makeTrend, makeSensorRows } from "@/lib/sensor-data";
+import { makeTrend, makeSensorRows, type SensorRow } from "@/lib/sensor-data";
 
 export const Route = createFileRoute("/sections/$sectionId")({
   head: () => ({ meta: [{ title: "Sensor List — VIBSENSE" }] }),
@@ -25,9 +35,42 @@ function Page() {
   const company = factory ? findById(data.companies, factory.parentId ?? "") : undefined;
 
   const trend = useMemo(() => makeTrend(), []);
-  const rows = useMemo(() => makeSensorRows(), []);
+  const [rows, setRows] = useState<SensorRow[]>(() => makeSensorRows());
   const [range, setRange] = useState<(typeof ranges)[number]>("Last Day");
   const [q, setQ] = useState("");
+  const [manageOpen, setManageOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newSensorId, setNewSensorId] = useState("");
+
+  const addSensor = () => {
+    const name = newName.trim();
+    const sid = newSensorId.trim();
+    if (!name || !sid) return;
+    setRows((prev) => [
+      ...prev,
+      {
+        id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+        name,
+        sensorId: sid,
+        temp: 40 + Math.random() * 10,
+        battery: 100,
+        rul: 10000 + Math.floor(Math.random() * 3000),
+        timestamp: new Date().toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
+    setNewName("");
+    setNewSensorId("");
+  };
+
+  const removeSensor = (id: string) => {
+    setRows((prev) => prev.filter((r) => r.id !== id));
+  };
 
   const filtered = rows.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()));
 
@@ -77,9 +120,80 @@ function Page() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-bold uppercase tracking-wide text-[oklch(0.3_0.07_260)]">All Sensors</h2>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Settings className="mr-1 h-4 w-4" /> Update Sensor
-          </Button>
+          <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Settings className="mr-1 h-4 w-4" /> Update Sensor
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Update Sensors</DialogTitle>
+                <DialogDescription>Add a new sensor or remove existing ones from this section.</DialogDescription>
+              </DialogHeader>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  addSensor();
+                }}
+                className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px_auto]"
+              >
+                <div className="space-y-1">
+                  <Label htmlFor="sensor-name">Sensor Name</Label>
+                  <Input
+                    id="sensor-name"
+                    placeholder="e.g. Motor 3P Drive 12"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="sensor-id">Sensor ID</Label>
+                  <Input
+                    id="sensor-id"
+                    placeholder="VBS-099"
+                    value={newSensorId}
+                    onChange={(e) => setNewSensorId(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button type="submit" className="w-full sm:w-auto">
+                    <Plus className="mr-1 h-4 w-4" /> Add
+                  </Button>
+                </div>
+              </form>
+              <div className="mt-2 max-h-72 overflow-y-auto rounded-lg border border-border">
+                {rows.length === 0 ? (
+                  <p className="p-4 text-sm text-muted-foreground">No sensors yet. Add one above.</p>
+                ) : (
+                  <ul className="divide-y divide-border">
+                    {rows.map((r) => (
+                      <li key={r.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{r.name}</p>
+                          <p className="text-xs text-muted-foreground">{r.sensorId}</p>
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => removeSensor(r.id)}
+                          title="Remove sensor"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setManageOpen(false)}>
+                  Done
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         <div className="relative mb-3 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
