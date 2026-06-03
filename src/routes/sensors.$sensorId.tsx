@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine,
@@ -28,6 +28,10 @@ function Page() {
   const trend = useMemo(() => makeTrend(), []);
   const spectrum = useMemo(() => makeSpectrum(), []);
   const history = useMemo(() => makeHistory(), []);
+  const [fault, setFault] = useState<{ title: string; detail: string } | null>({
+    title: "AI Fault Detection",
+    detail: "Imbalance, Misalignment",
+  });
 
   return (
     <AppShell
@@ -81,11 +85,23 @@ function Page() {
         <aside className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
           <p className="text-sm font-bold text-[oklch(0.3_0.07_260)]">PREDICTED FAULT</p>
           <p className="text-[11px] text-muted-foreground">(as per 17 Nov 2025 09:00)</p>
-          <div className="mt-3 rounded-lg bg-destructive p-3 text-destructive-foreground">
-            <p className="text-sm font-bold">AI Fault Detection</p>
-            <p className="text-xs opacity-90">Imbalance, Misalignment</p>
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground">No Fault</p>
+          {fault ? (
+            <>
+              <div className="mt-3 rounded-lg bg-destructive p-3 text-destructive-foreground">
+                <p className="text-sm font-bold">{fault.title}</p>
+                <p className="text-xs opacity-90">{fault.detail}</p>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">Fault detected</p>
+            </>
+          ) : (
+            <>
+              <div className="mt-3 rounded-lg bg-[oklch(0.95_0.03_150)] p-3 text-[oklch(0.35_0.12_150)]">
+                <p className="text-sm font-bold">No Active Fault</p>
+                <p className="text-xs opacity-90">System operating normally</p>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground">No Fault</p>
+            </>
+          )}
         </aside>
       </div>
 
@@ -109,7 +125,14 @@ function Page() {
 
       <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <div className="mb-3 flex justify-end gap-2">
-          <Button variant="outline" size="sm">RESET FAULT</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFault(null)}
+            disabled={!fault}
+          >
+            RESET FAULT
+          </Button>
           <Button variant="outline" size="sm">SEE MORE</Button>
         </div>
         <div className="overflow-x-auto rounded-xl border border-border">
