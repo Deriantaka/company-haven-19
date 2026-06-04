@@ -122,10 +122,21 @@ function Page() {
               {r}
             </Button>
           ))}
-          <div className="ml-auto rounded-lg border border-border bg-[oklch(0.98_0.01_250)] px-3 py-2 text-[11px] leading-tight">
-            <p className="font-bold">THRESHOLDS</p>
-            <div className="mt-1 grid grid-cols-3 gap-x-4 text-muted-foreground">
-              <span>Temp Max 75</span><span>Peak Max 15</span><span>RMS Max 12</span>
+          <div className="ml-auto rounded-lg border border-border bg-[oklch(0.98_0.01_250)] px-4 py-3 text-xs leading-tight">
+            <p className="mb-2 text-sm font-bold text-[oklch(0.3_0.07_260)]">THRESHOLDS</p>
+            <div className="grid grid-cols-3 gap-x-6">
+              {[
+                { label: "Temperature (°C)", t: thresholds.temp },
+                { label: "Peak (m/s²)", t: thresholds.peak },
+                { label: "RMS (m/s²)", t: thresholds.rms },
+              ].map(({ label, t }) => (
+                <div key={label} className="space-y-1">
+                  <p className="font-semibold text-[oklch(0.3_0.07_260)]">{label}</p>
+                  <p className="text-muted-foreground">Max Unsat : {t.maxUnsat}</p>
+                  <p className="text-muted-foreground">Max Sat : {t.maxSat}</p>
+                  <p className="text-muted-foreground">Max Good : {t.maxGood}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
