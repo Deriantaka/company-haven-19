@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Search, ChevronRight, FileText, Settings, Plus, Trash2 } from "lucide-react";
+import { Search, ChevronRight, FileText, Settings, Plus, Trash2, Settings2 } from "lucide-react";
 import { useStore, findById } from "@/lib/store";
 import { makeTrend, makeSensorRows, type SensorRow } from "@/lib/sensor-data";
 
@@ -41,6 +41,16 @@ function Page() {
   const [manageOpen, setManageOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSensorId, setNewSensorId] = useState("");
+  const [thresholdsOpen, setThresholdsOpen] = useState(false);
+  const [thresholds, setThresholds] = useState({
+    batteryMin: 20,
+    peakMax: 15,
+    rmsMax: 12,
+    tempMax: 75,
+    rmsGreenMin: 1,
+    rmsGreenMax: 4,
+    rmsYellowMax: 12,
+  });
 
   const addSensor = () => {
     const name = newName.trim();
@@ -120,6 +130,94 @@ function Page() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-bold uppercase tracking-wide text-[oklch(0.3_0.07_260)]">All Sensors</h2>
+          <div className="flex items-center gap-2">
+          <Dialog open={thresholdsOpen} onOpenChange={setThresholdsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="icon" title="Threshold settings">
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Threshold Settings</DialogTitle>
+                <DialogDescription>
+                  Configure thresholds. Status color is driven by RMS across Vertical, Horizontal and Axial axes.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>Battery Min (%)</Label>
+                  <Input
+                    type="number"
+                    value={thresholds.batteryMin}
+                    onChange={(e) => setThresholds((t) => ({ ...t, batteryMin: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Temp Max (°C)</Label>
+                  <Input
+                    type="number"
+                    value={thresholds.tempMax}
+                    onChange={(e) => setThresholds((t) => ({ ...t, tempMax: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Peak Max</Label>
+                  <Input
+                    type="number"
+                    value={thresholds.peakMax}
+                    onChange={(e) => setThresholds((t) => ({ ...t, peakMax: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>RMS Max</Label>
+                  <Input
+                    type="number"
+                    value={thresholds.rmsMax}
+                    onChange={(e) => setThresholds((t) => ({ ...t, rmsMax: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg border border-border bg-[oklch(0.98_0.01_250)] p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">RMS Status Bands</p>
+                <div className="mt-2 grid grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" /> Green min</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={thresholds.rmsGreenMin}
+                      onChange={(e) => setThresholds((t) => ({ ...t, rmsGreenMin: Number(e.target.value) }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[oklch(0.78_0.16_75)]" /> Yellow at</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={thresholds.rmsGreenMax}
+                      onChange={(e) => setThresholds((t) => ({ ...t, rmsGreenMax: Number(e.target.value) }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" /> Red at</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={thresholds.rmsYellowMax}
+                      onChange={(e) => setThresholds((t) => ({ ...t, rmsYellowMax: Number(e.target.value) }))}
+                    />
+                  </div>
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Green: {thresholds.rmsGreenMin} &lt; RMS &lt; {thresholds.rmsGreenMax} · Yellow: {thresholds.rmsGreenMax} &lt; RMS &lt; {thresholds.rmsYellowMax} · Red: RMS &gt; {thresholds.rmsYellowMax}
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setThresholdsOpen(false)}>Done</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Dialog open={manageOpen} onOpenChange={setManageOpen}>
             <DialogTrigger asChild>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -194,6 +292,7 @@ function Page() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
         <div className="relative mb-3 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -214,13 +313,25 @@ function Page() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((r, i) => (
+              {filtered.map((r, i) => {
+                const rmsVals = [
+                  (r as any).rmsV ?? 2 + Math.sin(i) * 0.5 + i * 0.3,
+                  (r as any).rmsH ?? 1.5 + Math.cos(i) * 0.5 + i * 0.25,
+                  (r as any).rmsA ?? 1.8 + Math.sin(i + 1) * 0.5 + i * 0.28,
+                ] as number[];
+                const colorFor = (v: number): "success" | "warning" | "danger" => {
+                  if (v > thresholds.rmsYellowMax) return "danger";
+                  if (v > thresholds.rmsGreenMax) return "warning";
+                  if (v > thresholds.rmsGreenMin) return "success";
+                  return "success";
+                };
+                return (
                 <tr key={r.id} className={i % 2 ? "bg-[oklch(0.985_0.005_250)]" : ""}>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
-                      <Badge color="success">V</Badge>
-                      <Badge color="info">H</Badge>
-                      <Badge color="warning">A</Badge>
+                      <Badge color={colorFor(rmsVals[0])}>V</Badge>
+                      <Badge color={colorFor(rmsVals[1])}>H</Badge>
+                      <Badge color={colorFor(rmsVals[2])}>A</Badge>
                     </div>
                   </td>
                   <td className="px-4 py-3 font-medium text-foreground">{r.name}</td>
@@ -252,7 +363,8 @@ function Page() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -261,13 +373,15 @@ function Page() {
   );
 }
 
-function Badge({ color, children }: { color: "success" | "info" | "warning"; children: React.ReactNode }) {
+function Badge({ color, children }: { color: "success" | "info" | "warning" | "danger"; children: React.ReactNode }) {
   const bg =
     color === "success"
       ? "bg-success"
       : color === "info"
       ? "bg-[oklch(0.6_0.16_240)]"
-      : "bg-[oklch(0.78_0.16_75)]";
+      : color === "warning"
+      ? "bg-[oklch(0.78_0.16_75)]"
+      : "bg-destructive";
   return (
     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white ${bg}`}>
       {children}
