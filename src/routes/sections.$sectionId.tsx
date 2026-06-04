@@ -310,9 +310,9 @@ function Page() {
                   (r as any).rmsA ?? 1.8 + Math.sin(i + 1) * 0.5 + i * 0.28,
                 ] as number[];
                 const colorFor = (v: number): "success" | "warning" | "danger" => {
-                  if (v > thresholds.rmsYellowMax) return "danger";
-                  if (v > thresholds.rmsGreenMax) return "warning";
-                  if (v > thresholds.rmsGreenMin) return "success";
+                  if (v > thresholds.rms.maxUnsat) return "danger";
+                  if (v > thresholds.rms.maxSat) return "danger";
+                  if (v > thresholds.rms.maxGood) return "warning";
                   return "success";
                 };
                 return (
@@ -376,5 +376,72 @@ function Badge({ color, children }: { color: "success" | "info" | "warning" | "d
     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white ${bg}`}>
       {children}
     </span>
+  );
+}
+
+type ThresholdColor = "success" | "warning" | "danger";
+type ThresholdField = { key: string; label: string; value: number; color: ThresholdColor };
+
+function ThresholdRow({
+  title,
+  max,
+  direction,
+  fields,
+  onChange,
+}: {
+  title: string;
+  max: number;
+  direction: "min" | "max";
+  fields: ThresholdField[];
+  onChange: (key: string, value: number) => void;
+}) {
+  const dotColor = (c: ThresholdColor) =>
+    c === "success"
+      ? "bg-success"
+      : c === "warning"
+      ? "bg-[oklch(0.78_0.16_75)]"
+      : "bg-destructive";
+
+  // Gradient: for "max" direction, low values are good (blue) → high values bad (red).
+  // For "min" direction (Battery), low values are bad (red) → high good (blue).
+  const gradient =
+    direction === "max"
+      ? "linear-gradient(to right, oklch(0.6 0.18 240), oklch(0.55 0.22 25))"
+      : "linear-gradient(to right, oklch(0.55 0.22 25), oklch(0.6 0.18 240))";
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-semibold text-[oklch(0.55_0.18_240)]">{title}</p>
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-muted-foreground">0</span>
+        <div className="relative h-2 flex-1 rounded-full" style={{ background: gradient }}>
+          {fields.map((f) => {
+            const pct = Math.max(0, Math.min(100, (f.value / max) * 100));
+            return (
+              <span
+                key={f.key}
+                className={`absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${dotColor(f.color)}`}
+                style={{ left: `${pct}%` }}
+                title={`${f.label}: ${f.value}`}
+              />
+            );
+          })}
+        </div>
+        <span className="text-xs text-muted-foreground">{max}</span>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {fields.map((f) => (
+          <div key={f.key} className="space-y-1">
+            <Label className="text-xs text-muted-foreground">{f.label}</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={f.value}
+              onChange={(e) => onChange(f.key, Number(e.target.value))}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
