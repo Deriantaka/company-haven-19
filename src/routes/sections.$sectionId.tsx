@@ -43,14 +43,21 @@ function Page() {
   const [newSensorId, setNewSensorId] = useState("");
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
   const [thresholds, setThresholds] = useState({
-    batteryMin: 20,
-    peakMax: 15,
-    rmsMax: 12,
-    tempMax: 75,
-    rmsGreenMin: 1,
-    rmsGreenMax: 4,
-    rmsYellowMax: 12,
+    battery: { minUnsat: 3, minSat: 3.2, minGood: 3.5, max: 5 },
+    peak: { maxGood: 1, maxSat: 6, maxUnsat: 15, max: 2000 },
+    rms: { maxGood: 1, maxSat: 4, maxUnsat: 12, max: 2000 },
+    temp: { maxGood: 58, maxSat: 68, maxUnsat: 75, max: 200 },
   });
+  const [draft, setDraft] = useState(thresholds);
+
+  const openThresholds = () => {
+    setDraft(thresholds);
+    setThresholdsOpen(true);
+  };
+  const saveThresholds = () => {
+    setThresholds(draft);
+    setThresholdsOpen(false);
+  };
 
   const addSensor = () => {
     const name = newName.trim();
@@ -133,88 +140,71 @@ function Page() {
           <div className="flex items-center gap-2">
           <Dialog open={thresholdsOpen} onOpenChange={setThresholdsOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="icon" title="Threshold settings">
+              <Button variant="outline" size="icon" title="Threshold settings" onClick={openThresholds}>
                 <Settings2 className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-xl">
+            <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Threshold Settings</DialogTitle>
                 <DialogDescription>
-                  Configure thresholds. Status color is driven by RMS across Vertical, Horizontal and Axial axes.
+                  Configure Battery, Peak, RMS and Temp thresholds. RMS Max Good / Max Sat drive the status color across Vertical, Horizontal and Axial axes.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <Label>Battery Min (%)</Label>
-                  <Input
-                    type="number"
-                    value={thresholds.batteryMin}
-                    onChange={(e) => setThresholds((t) => ({ ...t, batteryMin: Number(e.target.value) }))}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Temp Max (°C)</Label>
-                  <Input
-                    type="number"
-                    value={thresholds.tempMax}
-                    onChange={(e) => setThresholds((t) => ({ ...t, tempMax: Number(e.target.value) }))}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Peak Max</Label>
-                  <Input
-                    type="number"
-                    value={thresholds.peakMax}
-                    onChange={(e) => setThresholds((t) => ({ ...t, peakMax: Number(e.target.value) }))}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>RMS Max</Label>
-                  <Input
-                    type="number"
-                    value={thresholds.rmsMax}
-                    onChange={(e) => setThresholds((t) => ({ ...t, rmsMax: Number(e.target.value) }))}
-                  />
-                </div>
+              <div className="space-y-6">
+                <ThresholdRow
+                  title="Battery"
+                  max={draft.battery.max}
+                  direction="min"
+                  fields={[
+                    { key: "minUnsat", label: "Min Unsat", value: draft.battery.minUnsat, color: "danger" },
+                    { key: "minSat", label: "Min Sat", value: draft.battery.minSat, color: "warning" },
+                    { key: "minGood", label: "Min Good", value: draft.battery.minGood, color: "success" },
+                  ]}
+                  onChange={(key, v) => setDraft((d) => ({ ...d, battery: { ...d.battery, [key]: v } }))}
+                />
+                <ThresholdRow
+                  title="Peak"
+                  max={draft.peak.max}
+                  direction="max"
+                  fields={[
+                    { key: "maxGood", label: "Max Good", value: draft.peak.maxGood, color: "success" },
+                    { key: "maxSat", label: "Max Sat", value: draft.peak.maxSat, color: "warning" },
+                    { key: "maxUnsat", label: "Max Unsat", value: draft.peak.maxUnsat, color: "danger" },
+                  ]}
+                  onChange={(key, v) => setDraft((d) => ({ ...d, peak: { ...d.peak, [key]: v } }))}
+                />
+                <ThresholdRow
+                  title="RMS"
+                  max={draft.rms.max}
+                  direction="max"
+                  fields={[
+                    { key: "maxGood", label: "Max Good", value: draft.rms.maxGood, color: "success" },
+                    { key: "maxSat", label: "Max Sat", value: draft.rms.maxSat, color: "warning" },
+                    { key: "maxUnsat", label: "Max Unsat", value: draft.rms.maxUnsat, color: "danger" },
+                  ]}
+                  onChange={(key, v) => setDraft((d) => ({ ...d, rms: { ...d.rms, [key]: v } }))}
+                />
+                <ThresholdRow
+                  title="Temp"
+                  max={draft.temp.max}
+                  direction="max"
+                  fields={[
+                    { key: "maxGood", label: "Max Good", value: draft.temp.maxGood, color: "success" },
+                    { key: "maxSat", label: "Max Sat", value: draft.temp.maxSat, color: "warning" },
+                    { key: "maxUnsat", label: "Max Unsat", value: draft.temp.maxUnsat, color: "danger" },
+                  ]}
+                  onChange={(key, v) => setDraft((d) => ({ ...d, temp: { ...d.temp, [key]: v } }))}
+                />
               </div>
-              <div className="rounded-lg border border-border bg-[oklch(0.98_0.01_250)] p-3">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">RMS Status Bands</p>
-                <div className="mt-2 grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" /> Green min</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={thresholds.rmsGreenMin}
-                      onChange={(e) => setThresholds((t) => ({ ...t, rmsGreenMin: Number(e.target.value) }))}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[oklch(0.78_0.16_75)]" /> Yellow at</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={thresholds.rmsGreenMax}
-                      onChange={(e) => setThresholds((t) => ({ ...t, rmsGreenMax: Number(e.target.value) }))}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" /> Red at</Label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={thresholds.rmsYellowMax}
-                      onChange={(e) => setThresholds((t) => ({ ...t, rmsYellowMax: Number(e.target.value) }))}
-                    />
-                  </div>
-                </div>
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  Green: {thresholds.rmsGreenMin} &lt; RMS &lt; {thresholds.rmsGreenMax} · Yellow: {thresholds.rmsGreenMax} &lt; RMS &lt; {thresholds.rmsYellowMax} · Red: RMS &gt; {thresholds.rmsYellowMax}
-                </p>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setThresholdsOpen(false)}>Done</Button>
+              <DialogFooter className="gap-2">
+                <Button variant="ghost" onClick={() => setThresholdsOpen(false)}>Cancel</Button>
+                <Button
+                  onClick={saveThresholds}
+                  className="bg-[oklch(0.78_0.16_75)] text-white hover:bg-[oklch(0.72_0.16_75)]"
+                >
+                  Save
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
