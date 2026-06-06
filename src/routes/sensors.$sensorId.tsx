@@ -9,24 +9,49 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
 import { makeTrend, makeSpectrum, makeHistory } from "@/lib/sensor-data";
+import { useStore, findById } from "@/lib/store";
 
 export const Route = createFileRoute("/sensors/$sensorId")({
   head: () => ({ meta: [{ title: "Sensor Detail — VIBSENSE" }] }),
   component: Page,
 });
 
-const tiles = [
-  { label: "PEAK", sub: "VERTICAL", value: "0.0914", badge: "V", color: "oklch(0.55 0.18 30)" },
-  { label: "PEAK", sub: "HORIZONTAL", value: "0.0623", badge: "H", color: "oklch(0.5 0.2 320)" },
-  { label: "PEAK", sub: "AXIAL", value: "0.0761", badge: "A", color: "oklch(0.78 0.16 75)" },
-  { label: "RMS", sub: "VERTICAL", value: "0.0529", badge: "V", color: "oklch(0.55 0.18 30)" },
-  { label: "RMS", sub: "HORIZONTAL", value: "0.0446", badge: "H", color: "oklch(0.5 0.2 320)" },
-  { label: "RMS", sub: "AXIAL", value: "0.0678", badge: "A", color: "oklch(0.78 0.16 75)" },
-  { label: "TEMPERATURE", sub: "", value: "35.06", badge: "°C", color: "oklch(0.6 0.18 240)" },
-  { label: "RUL", sub: "", value: "12482", badge: "Days", color: "oklch(0.6 0.16 180)" },
-];
+function hashSeed(s: string) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0) / 0xffffffff;
+}
 
 function Page() {
+  const { sensorId } = Route.useParams();
+  const { data } = useStore();
+  const sensor = findById(data.sensors, sensorId) as any;
+  const seed = hashSeed(sensorId);
+
+  const tiles = useMemo(() => {
+    const peakV = 0.05 + seed * 0.1;
+    const peakH = 0.04 + ((seed * 7) % 1) * 0.08;
+    const peakA = 0.05 + ((seed * 13) % 1) * 0.08;
+    const rmsV = 0.03 + ((seed * 3) % 1) * 0.05;
+    const rmsH = 0.03 + ((seed * 5) % 1) * 0.05;
+    const rmsA = 0.03 + ((seed * 11) % 1) * 0.05;
+    const temp = sensor?.temp ?? 35 + seed * 15;
+    const rul = sensor?.rul ?? Math.floor(8000 + seed * 6000);
+    return [
+      { label: "PEAK", sub: "VERTICAL", value: peakV.toFixed(4), badge: "V", color: "oklch(0.55 0.18 30)" },
+      { label: "PEAK", sub: "HORIZONTAL", value: peakH.toFixed(4), badge: "H", color: "oklch(0.5 0.2 320)" },
+      { label: "PEAK", sub: "AXIAL", value: peakA.toFixed(4), badge: "A", color: "oklch(0.78 0.16 75)" },
+      { label: "RMS", sub: "VERTICAL", value: rmsV.toFixed(4), badge: "V", color: "oklch(0.55 0.18 30)" },
+      { label: "RMS", sub: "HORIZONTAL", value: rmsH.toFixed(4), badge: "H", color: "oklch(0.5 0.2 320)" },
+      { label: "RMS", sub: "AXIAL", value: rmsA.toFixed(4), badge: "A", color: "oklch(0.78 0.16 75)" },
+      { label: "TEMPERATURE", sub: "", value: temp.toFixed(2), badge: "°C", color: "oklch(0.6 0.18 240)" },
+      { label: "RUL", sub: "", value: String(rul), badge: "Days", color: "oklch(0.6 0.16 180)" },
+    ];
+  }, [sensor, seed]);
+
   const trend = useMemo(() => makeTrend(), []);
   const spectrum = useMemo(() => makeSpectrum(), []);
   const history = useMemo(() => makeHistory(), []);
@@ -38,9 +63,11 @@ function Page() {
   const toggleAxis = (k: "vertical" | "horizontal" | "axial") =>
     setAxes((a) => ({ ...a, [k]: !a[k] }));
 
+  const displayName = sensor?.name ?? "Sensor";
+
   return (
     <AppShell
-      crumbs={[{ label: "Company List", to: "/" }, { label: "Gear Box Wire Drive 1" }]}
+      crumbs={[{ label: "Company List", to: "/" }, { label: displayName }]}
       headerRight={
         <Button size="sm" variant="outline" className="ml-auto rounded-md">
           <Download className="mr-1 h-4 w-4" /> Export to PDF
@@ -69,7 +96,7 @@ function Page() {
 
       <div className="mb-6 grid gap-6 lg:grid-cols-[1fr_300px]">
         <section className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-          <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Trend Data for Gear Box Wire Drive 1</h2>
+          <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Trend Data for {displayName}</h2>
           <p className="text-xs text-muted-foreground">16 Nov 2025 09:00 - 17 Nov 2025 09:00</p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -113,7 +140,7 @@ function Page() {
       <section className="mb-6 rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Spectrum Chart for Gear Box Wire Drive 1</h2>
+            <h2 className="text-lg font-bold text-[oklch(0.3_0.07_260)]">Spectrum Chart for {displayName}</h2>
             <p className="text-xs text-muted-foreground">17 Nov 2025 09:00</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
