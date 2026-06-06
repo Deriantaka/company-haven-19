@@ -27,7 +27,7 @@ const ranges = ["Last Day", "Last Week", "Last Month"] as const;
 
 function Page() {
   const { sectionId } = Route.useParams();
-  const { data } = useStore();
+  const { data, addItem, removeItem } = useStore();
   const section = findById(data.sections, sectionId);
   const line = section ? findById(data.lines, section.parentId ?? "") : undefined;
   const group = line ? findById(data.groups, line.parentId ?? "") : undefined;
@@ -35,7 +35,36 @@ function Page() {
   const company = factory ? findById(data.companies, factory.parentId ?? "") : undefined;
 
   const trend = useMemo(() => makeTrend(), []);
-  const [rows, setRows] = useState<SensorRow[]>(() => makeSensorRows());
+  // Sensors are persisted in the global store, scoped by sectionId.
+  // For the legacy seeded section ("sec-vibsense") we hydrate with rich
+  // dummy values so the original demo still looks populated.
+  const seedDefaults = useMemo(() => {
+    const map = new Map<string, Partial<SensorRow>>();
+    makeSensorRows().forEach((r, i) => {
+      // index-aligned defaults for the 4 seed sensors in sec-vibsense
+      map.set(["s-vibsense-pm1", "s-roll-back", "s-motor-suc", "s-roll-front"][i] ?? "", r);
+    });
+    return map;
+  }, []);
+
+  const rows: SensorRow[] = useMemo(() => {
+    return data.sensors
+      .filter((s) => s.parentId === sectionId)
+      .map((s) => {
+        const e = s as any;
+        const seed = seedDefaults.get(s.id);
+        return {
+          id: s.id,
+          name: s.name,
+          sensorId: e.sensorId ?? seed?.sensorId ?? s.id.slice(0, 6).toUpperCase(),
+          temp: e.temp ?? seed?.temp ?? 40 + Math.random() * 10,
+          battery: e.battery ?? seed?.battery ?? 100,
+          rul: e.rul ?? seed?.rul ?? 10000 + Math.floor(Math.random() * 3000),
+          timestamp: e.timestamp ?? seed?.timestamp ?? "—",
+        };
+      });
+  }, [data.sensors, sectionId, seedDefaults]);
+
   const [range, setRange] = useState<(typeof ranges)[number]>("Last Day");
   const [q, setQ] = useState("");
   const [manageOpen, setManageOpen] = useState(false);
@@ -63,30 +92,26 @@ function Page() {
     const name = newName.trim();
     const sid = newSensorId.trim();
     if (!name || !sid) return;
-    setRows((prev) => [
-      ...prev,
-      {
-        id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-        name,
-        sensorId: sid,
-        temp: 40 + Math.random() * 10,
-        battery: 100,
-        rul: 10000 + Math.floor(Math.random() * 3000),
-        timestamp: new Date().toLocaleString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    addItem("sensors", name, sectionId, {
+      sensorId: sid,
+      temp: 40 + Math.random() * 10,
+      battery: 100,
+      rul: 10000 + Math.floor(Math.random() * 3000),
+      timestamp: new Date().toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      status: "active",
+    } as any);
     setNewName("");
     setNewSensorId("");
   };
 
   const removeSensor = (id: string) => {
-    setRows((prev) => prev.filter((r) => r.id !== id));
+    removeItem("sensors", id);
   };
 
   const filtered = rows.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()));
