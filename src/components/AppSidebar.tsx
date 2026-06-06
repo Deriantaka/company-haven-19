@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { BarChart3, Settings, LayoutDashboard, LogOut, Activity } from "lucide-react";
+import { BarChart3, Settings, LayoutDashboard, LogOut, Activity, List, Database } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import {
   Sidebar,
@@ -16,6 +16,8 @@ import {
 
 const items = [
   { title: "Company List", url: "/", icon: LayoutDashboard },
+  { title: "Sensor List", url: "/sensor-list", icon: List },
+  { title: "Sensor List Database", url: "/sensor-database", icon: Database },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
