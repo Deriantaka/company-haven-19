@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SensorListRouteImport } from './routes/sensor-list'
+import { Route as SensorDatabaseRouteImport } from './routes/sensor-database'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +25,16 @@ import { Route as CompaniesCompanyIdRouteImport } from './routes/companies.$comp
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SensorListRoute = SensorListRouteImport.update({
+  id: '/sensor-list',
+  path: '/sensor-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SensorDatabaseRoute = SensorDatabaseRouteImport.update({
+  id: '/sensor-database',
+  path: '/sensor-database',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
+  '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
@@ -87,6 +101,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
+  '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
@@ -100,6 +116,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
+  '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
   '/factories/$factoryId': typeof FactoriesFactoryIdRoute
@@ -114,6 +132,8 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
+    | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
     | '/factories/$factoryId'
@@ -126,6 +146,8 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
+    | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
     | '/factories/$factoryId'
@@ -138,6 +160,8 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
+    | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
     | '/factories/$factoryId'
@@ -151,6 +175,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
   LoginRoute: typeof LoginRoute
+  SensorDatabaseRoute: typeof SensorDatabaseRoute
+  SensorListRoute: typeof SensorListRoute
   SettingsRoute: typeof SettingsRoute
   CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
   FactoriesFactoryIdRoute: typeof FactoriesFactoryIdRoute
@@ -167,6 +193,20 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sensor-list': {
+      id: '/sensor-list'
+      path: '/sensor-list'
+      fullPath: '/sensor-list'
+      preLoaderRoute: typeof SensorListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sensor-database': {
+      id: '/sensor-database'
+      path: '/sensor-database'
+      fullPath: '/sensor-database'
+      preLoaderRoute: typeof SensorDatabaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -239,6 +279,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
   LoginRoute: LoginRoute,
+  SensorDatabaseRoute: SensorDatabaseRoute,
+  SensorListRoute: SensorListRoute,
   SettingsRoute: SettingsRoute,
   CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
   FactoriesFactoryIdRoute: FactoriesFactoryIdRoute,
