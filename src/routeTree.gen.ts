@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SensorListRouteImport } from './routes/sensor-list'
+import { Route as SensorDatabaseRouteImport } from './routes/sensor-database'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SensorListRoute = SensorListRouteImport.update({
   id: '/sensor-list',
   path: '/sensor-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SensorDatabaseRoute = SensorDatabaseRouteImport.update({
+  id: '/sensor-database',
+  path: '/sensor-database',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
   '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
   '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/login': typeof LoginRoute
+  '/sensor-database': typeof SensorDatabaseRoute
   '/sensor-list': typeof SensorListRoute
   '/settings': typeof SettingsRoute
   '/companies/$companyId': typeof CompaniesCompanyIdRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
     | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
     | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/analytics'
     | '/login'
+    | '/sensor-database'
     | '/sensor-list'
     | '/settings'
     | '/companies/$companyId'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
   LoginRoute: typeof LoginRoute
+  SensorDatabaseRoute: typeof SensorDatabaseRoute
   SensorListRoute: typeof SensorListRoute
   SettingsRoute: typeof SettingsRoute
   CompaniesCompanyIdRoute: typeof CompaniesCompanyIdRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/sensor-list'
       fullPath: '/sensor-list'
       preLoaderRoute: typeof SensorListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sensor-database': {
+      id: '/sensor-database'
+      path: '/sensor-database'
+      fullPath: '/sensor-database'
+      preLoaderRoute: typeof SensorDatabaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
   LoginRoute: LoginRoute,
+  SensorDatabaseRoute: SensorDatabaseRoute,
   SensorListRoute: SensorListRoute,
   SettingsRoute: SettingsRoute,
   CompaniesCompanyIdRoute: CompaniesCompanyIdRoute,
