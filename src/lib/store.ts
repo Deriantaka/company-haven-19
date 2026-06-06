@@ -59,6 +59,7 @@ const seed = (): StoreData => {
 };
 
 function load(): StoreData {
+  if (typeof window === "undefined") return seed();
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) return JSON.parse(raw);
@@ -76,7 +77,7 @@ function getStore(): StoreData {
 function setStore(s: StoreData) {
   cache = s;
   try {
-    localStorage.setItem(KEY, JSON.stringify(s));
+    if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(s));
   } catch {}
   listeners.forEach((l) => l());
 }
@@ -84,6 +85,17 @@ function setStore(s: StoreData) {
 export function useStore() {
   const [, force] = useState(0);
   useEffect(() => {
+    // Re-hydrate from localStorage after mount so SSR and first client render match (seed),
+    // then we swap to persisted data and re-render.
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) {
+          cache = JSON.parse(raw);
+          force((n) => n + 1);
+        }
+      } catch {}
+    }
     const fn = () => force((n) => n + 1);
     listeners.add(fn);
     return () => {
