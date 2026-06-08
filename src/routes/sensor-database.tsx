@@ -16,7 +16,7 @@ type DbSensor = {
   status: "active" | "inactive";
 };
 
-const BASE_URL = "https://03a2-110-139-27-138.ngrok-free.app";
+const BASE_URL = "https://2891-110-139-27-138.ngrok-free.app";
 const LOGIN_USER = "bagus";
 const LOGIN_PASS = "Admin1234!";
 const PROJECT_ID = 280;
