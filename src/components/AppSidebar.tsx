@@ -1,6 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { BarChart3, Settings, LayoutDashboard, LogOut, Activity, List, Database } from "lucide-react";
-import { signOut } from "@/lib/auth";
+import { signOut } from "@/lib/api/auth";
 import {
   Sidebar,
   SidebarContent,
