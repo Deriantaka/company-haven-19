@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useStore, findById } from "@/lib/store";
 import { toast } from "sonner";
 import { Plus, Search, Loader2, RefreshCw } from "lucide-react";
-import { switchThetaProject, getThetaDevices } from "@/lib/api/auth";
 
 type DbSensor = {
   id: string;
@@ -17,24 +16,55 @@ type DbSensor = {
   status: "active" | "inactive";
 };
 
+const BASE_URL = "https://2891-110-139-27-138.ngrok-free.app";
+const LOGIN_USER = "bagus";
+const LOGIN_PASS = "Admin1234!";
 const PROJECT_ID = 280;
 
-async function fetchSensorsFromTheta(): Promise<DbSensor[]> {
-  // Step 1: switch project
-  await switchThetaProject(PROJECT_ID);
+const apiHeaders = (token?: string): HeadersInit => ({
+  "Content-Type": "application/json",
+  "ngrok-skip-browser-warning": "true",
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+});
 
-  // Step 2: get devices
-  const devJson = await getThetaDevices();
-  
-  const list: any[] = devJson?.data?.data?.result || [];
+async function fetchSensorsFromTheta(): Promise<DbSensor[]> {
+  // Step 1: login
+  const loginRes = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: apiHeaders(),
+    body: JSON.stringify({ username: LOGIN_USER, password: LOGIN_PASS }),
+  });
+  if (!loginRes.ok) throw new Error(`Login failed (${loginRes.status})`);
+  const loginJson = await loginRes.json();
+  const token: string =
+    loginJson?.token ?? loginJson?.access_token ?? loginJson?.data?.token;
+  if (!token) throw new Error("Login response missing token");
+
+  // Step 2: switch project
+  const switchRes = await fetch(`${BASE_URL}/theta/project/${PROJECT_ID}`, {
+    method: "PUT",
+    headers: apiHeaders(token),
+  });
+  if (!switchRes.ok) throw new Error(`Switch project failed (${switchRes.status})`);
+
+  // Step 3: get devices
+  const devRes = await fetch(`${BASE_URL}/theta/getdevice`, {
+    method: "GET",
+    headers: apiHeaders(token),
+  });
+  if (!devRes.ok) throw new Error(`Get devices failed (${devRes.status})`);
+  const devJson = await devRes.json();
+  const list: any[] = Array.isArray(devJson)
+    ? devJson
+    : devJson?.data ?? devJson?.devices ?? [];
 
   return list.map((d: any, i: number) => {
-    const id = String(d?.id ?? `dev-${i}`);
+    const id = String(d?.id ?? d?._id ?? d?.uuid ?? `dev-${i}`);
     const name = d?.name ?? `Sensor ${i + 1}`;
-    const model = d?.type?.name ?? "Unknown";
-    const serial = d?.macAddress ?? String(d?.type?.code ?? id);
-    const isOnline = d?.isOnline === true;
-    const status: "active" | "inactive" = isOnline ? "active" : "inactive";
+    const model = d?.type?.name ?? d?.model ?? "Unknown";
+    const serial = d?.type?.code ?? d?.serial ?? id;
+    const transport = (d?.transport ?? "").toString().toUpperCase();
+    const status: "active" | "inactive" = transport === "MQTT" ? "active" : "inactive";
     return { id, name, model, serial, status };
   });
 }
