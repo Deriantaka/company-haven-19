@@ -26,7 +26,8 @@ async function fetchSensorsFromTheta(): Promise<DbSensor[]> {
   // Step 2: get devices
   const devJson = await getThetaDevices();
 
-  const list: any[] = devJson?.data?.data?.result || devJson?.data ?? devJson?.devices ?? [];
+  const list: any[] =
+    devJson?.data?.data?.result ?? devJson?.data ?? devJson?.devices ?? [];
 
   return list.map((d: any, i: number) => {
     const id = String(d?.id ?? d?._id ?? d?.uuid ?? `dev-${i}`);
