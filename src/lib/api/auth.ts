@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export const API_BASE_URL = "https://2891-110-139-27-138.ngrok-free.app";
+export const API_BASE_URL = "https://9246-110-139-27-63.ngrok-free.app";
 const TOKEN_KEY = "vibsense.token";
 const listeners = new Set<() => void>();
 
