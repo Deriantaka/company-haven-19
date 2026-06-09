@@ -2,7 +2,7 @@ import { ReactNode, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/api/auth";
 import { ChevronRight } from "lucide-react";
 
 export type Crumb = { label: string; to?: string };
