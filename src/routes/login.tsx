@@ -4,7 +4,7 @@ import { Eye, EyeOff, Activity, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { isAuthed, signIn } from "@/lib/auth";
+import { isAuthed, signIn } from "@/lib/api/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -19,19 +19,28 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isAuthed()) navigate({ to: "/" });
   }, [navigate]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password) {
       setError("Enter your credentials");
       return;
     }
-    signIn();
-    navigate({ to: "/" });
+    setError(null);
+    setLoading(true);
+    try {
+      await signIn(username, password);
+      navigate({ to: "/" });
+    } catch (err: any) {
+      setError(err.message || "Failed to sign in");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,10 +100,10 @@ function LoginPage() {
               </div>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              Sign in
+            <Button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
-            <p className="text-center text-xs text-muted-foreground">Use any credentials — demo mode.</p>
+            <p className="text-center text-xs text-muted-foreground">Log in with your administrator credentials.</p>
           </div>
         </form>
       </div>
