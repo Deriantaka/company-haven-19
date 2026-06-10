@@ -39,6 +39,9 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
 }
 
 export function isAuthed(): boolean {
+  // TEMPORARY DEV MODE: auth bypass while backend login API is being fixed.
+  // Revert by removing this early return to restore real auth checks.
+  return true;
   try {
     return !!localStorage.getItem(TOKEN_KEY);
   } catch {
@@ -71,7 +74,9 @@ export function signOut() {
 }
 
 export function useAuth() {
-  const [authed, setAuthed] = useState(() => (typeof window !== "undefined" ? isAuthed() : false));
+  // TEMPORARY DEV MODE: always treat user as authenticated.
+  // Revert by restoring the original isAuthed-based state below.
+  const [authed, setAuthed] = useState(() => true);
   useEffect(() => {
     const fn = () => setAuthed(isAuthed());
     listeners.add(fn);
