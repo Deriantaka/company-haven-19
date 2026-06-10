@@ -19,9 +19,14 @@ export function AppShell({
   const authed = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
-    if (!authed) navigate({ to: "/login" });
+    // TEMPORARY DEV MODE: send unauthenticated users to the dashboard ("/")
+    // instead of "/login" while the backend login API is being fixed.
+    // Revert this to navigate({ to: "/login" }) when auth is re-enabled.
+    if (!authed) navigate({ to: "/" });
   }, [authed, navigate]);
-  if (!authed) return null;
+  // TEMPORARY DEV MODE: render children even when not authenticated.
+  // Revert by restoring `if (!authed) return null;` below.
+  // if (!authed) return null;
 
   return (
     <SidebarProvider>
